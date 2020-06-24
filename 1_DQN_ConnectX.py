@@ -13,7 +13,7 @@ from kaggle_environments import evaluate, make, utils
 
 #This script version save all sars in the file
 
-EPISODES=500
+EPISODES=1000
 
 class DQNAgent:
     def __init__(self,state_size,action_size):
@@ -30,11 +30,10 @@ class DQNAgent:
     def __build_model(self):
         #Neural Net for Deep-Q learning Model
         model=Sequential()
-        model.add(Dense(24,input_dim=self.state_size,activation='relu'))
-        model.add(Dense(24,activation='relu'))
+        model.add(Dense(300,input_dim=self.state_size,activation='elu'))
+        model.add(Dense(300,activation='elu'))
         model.add(Dense(self.action_size,activation='linear'))
-        model.compile(loss='mse',
-                      optimizer=Adam(lr=self.learning_rate))
+        model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
         model.summary()
         return model
 
@@ -58,11 +57,16 @@ class DQNAgent:
 
         idx=0
         for state,action,reward,next_state,done in minibatch:
+            #print('states=',states.shape)
 
 
             states[idx,:]=state
             actions[idx,:]=action
             next_states[idx,:]=next_state
+            #print('=next_state=', next_state)
+            #print('self.model.predict(next_state)=',self.model.predict(np.expand_dims(next_state,axis=0)))
+
+
             if not done:
                 target=(reward+self.gamma*np.amax(self.model.predict(next_state)[0]))
             else:
@@ -101,7 +105,7 @@ def state2observation(state):
         board[board==1]=-5
         board[board==2]=5
     board=board/5
-    return board
+    return np.expand_dims(board,axis=0)
 
 if __name__=="__main__":
 
@@ -119,8 +123,8 @@ if __name__=="__main__":
 
     #Yrying to load previous trained net if exist
     try:
-        agent.load('cartpole-dqn.h5')
-        print("agent file loaded")
+        agent.load('connectX.obj')
+        print("Agent file loaded")
     except:
         pass
     done=False
@@ -134,26 +138,27 @@ if __name__=="__main__":
         for time in range(200):
 
             action=agent.act(state)
-            next_state,reward,done,__=env.step(action)
+            next_state,reward,done,__=env.step(int(action))
 
             #conversions
             next_state=state2observation(next_state)
-            print('reward=', reward)
+            if reward is None: reward=0
+            #print('reward=', reward)
 
 
 
             agent.memorize(state,action,reward,next_state,done)
             state=next_state
             if done:
-                print('episode: {}/{}, score: {}, e: {:.2}'.format(e,EPISODES,time,agent.epsilon))
+                print('episode: {}/{}, moves: {}, reward: {}, e: {:.2}'.format(e,EPISODES,time,reward,agent.epsilon))
                 break
             if len(agent.memory)>batch_size:
                 agent.replay(batch_size)
         if e%10==0:
-            agent.save('whole_model.obj')
+            agent.save('connectX.obj')
             #agent.save('cartpole-dqn.h5')
     sars=agent.memory
     print(sars)
 
-    pickle.dump(sars, open('sars_500_episodes.obj', 'wb') )
+    pickle.dump(sars, open('ConnectX_1000_episodes.obj', 'wb') )
 
