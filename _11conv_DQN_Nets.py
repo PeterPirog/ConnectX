@@ -37,7 +37,8 @@ class DQNAgent:
 
         #Dense part
         flatten =layers.Flatten()(conv_2)
-        x = layers.Dense(64, activation='elu',kernel_initializer='glorot_normal',name='hidden_layer2')(flatten)
+        norm_lay=layers.LayerNormalization(name='norm_lay')(flatten)
+        x = layers.Dense(64, activation='elu',kernel_initializer='glorot_normal',name='hidden_layer2')(norm_lay)
         outputs = layers.Dense(self.output_shape,activation='linear',kernel_initializer='glorot_normal',name='output_layer')(x)
 
         model = tf.keras.Model(inputs=inputs, outputs=outputs, name='Q_values_model')

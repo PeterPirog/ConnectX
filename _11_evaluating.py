@@ -14,7 +14,7 @@ columns=configuration['columns']
 
 
 #Training process settings
-EPISODES=20
+EPISODES=30
 #agent2=DQNAgent(rows=rows,columns=columns,action_size=columns)
 
 verbose=False

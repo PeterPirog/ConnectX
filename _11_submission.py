@@ -7,8 +7,8 @@ MODEL_Q = 0  # global variable to checking if model is defined
 
 
 def agent(observation, configuration):
-    rows = configuration['rows']
-    columns = configuration['columns']
+    rows = 6  # configuration['rows']
+    columns = 7  # configuration['columns']
     global MODEL_Q
 
     # converting state to 2D array
@@ -21,11 +21,8 @@ def agent(observation, configuration):
         while not os.path.exists('./model_action_predictor.h5'):
             pass
 
-    if not isinstance(MODEL_Q, tf.keras.Model): #if model variable not exist
+    if not isinstance(MODEL_Q, tf.keras.Model):  # if model variable not exist
         MODEL_Q = models.load_model('./model_action_predictor.h5')
-
-    # JSON TEST
-    # json_model=MODEL_Q.to_json()
 
     # predict Q-values for current state
     prediction = MODEL_Q.predict(state)[0]
@@ -33,6 +30,8 @@ def agent(observation, configuration):
     # Choose maximum Q-value action
     action = np.argmax(prediction)
     action = np.int16(action).item()  # converting numpy int to native python int
+
+    action = get_available_action(state, action, rows)  # check if column is full
     return action
 
 
@@ -55,3 +54,21 @@ def states_converter(observation, rows, columns, convolution=False):
     if convolution:
         state = np.expand_dims(state, axis=3)
     return state
+
+
+# check if column is full
+def get_available_action(state, action, rows=6):
+    # reducink dimmensions
+    single_board = np.squeeze(state, axis=3)
+    single_board = np.squeeze(single_board, axis=0)
+
+    # find columns without zero values
+    occurencies = np.count_nonzero(single_board, axis=0)
+    idx = np.argwhere(occurencies < rows).squeeze()
+
+    if action in idx:
+        pass
+    else:
+        action = np.random.choice(idx)
+        action = np.int16(action).item()
+    return action
