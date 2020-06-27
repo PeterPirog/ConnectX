@@ -1,18 +1,22 @@
 from kaggle_environments import make
 from _11_submission import agent,states_converter
-from _11_DQN_Nets import DQNAgent
+from _11conv_DQN_Nets import DQNAgent
 
 
 #Environment settings
 env = make("connectx", debug=True)
-configuration={"rows": 6, "columns": 7}
 trainer = env.train([None, "random"])
+#Board size
+configuration={"rows": 6, "columns": 7}
+rows=configuration['rows']
+columns=configuration['columns']
+
 
 #Training process settings
-EPISODES=10
-agent2=DQNAgent(rows=configuration['rows'],columns=configuration['columns'],action_size=configuration['columns'])
+EPISODES=20
+agent2=DQNAgent(rows=rows,columns=columns,action_size=columns)
 
-verbose=True
+verbose=False
 
 obs = trainer.reset()
 done=False
@@ -26,6 +30,6 @@ for e in range(EPISODES):
         #print('new_state=', new_state)
         state=new_state
         if done:
-            print(states_converter(new_state))
-            print('reward=', reward)
+            #print(states_converter(new_state,rows,columns))
+            print("Episode: {}, reward: {} after {} moves".format(e,reward,i))
             break
