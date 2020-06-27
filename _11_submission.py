@@ -1,37 +1,36 @@
-from random import choice
 import numpy as np
 from tensorflow.keras import models
-from tensorflow.python.lib.io import file_io
+import os
 
-MODEL_Q = 0
+MODEL_Q = 0 # global variable to checking if model is defined
 
 
 def agent(observation, configuration):
     rows = configuration['rows']
     columns = configuration['columns']
-
     global MODEL_Q
-    # print('MODEL_Q=', MODEL_Q)
+
     # converting state to 2D array
     state = states_converter(observation, rows=rows, columns=columns, convolution=True)
     if not state.shape == (1, rows, columns, 1):
         print("State array shape error, state shape =", state.shape)
 
     # Load agent model from file
-    if MODEL_Q == 0:
-        # model_file=file_io.FileIO('gs://bert-pl/ConnectX/model_action_predictor.h5',mode='rb')
-        MODEL_Q = models.load_model('model_action_predictor.h5')
+    if MODEL_Q == 0:  #if model isn't defined
+        os.system("gsutil cp gs://bert-pl/ConnectX/model_action_predictor.h5 ./") #path for cloud model file
+        while not os.path.exists('./model_action_predictor.h5'):  #wait until file exist in local directory
+            pass
+            #print('File exist=',os.path.exists('./model_action_predictor.h5'))
+
+    MODEL_Q = models.load_model('./model_action_predictor.h5')
 
     # predict Q-values for current state
-
     prediction = MODEL_Q.predict(state)[0]
-    # print('\npredictions=',prediction)
 
     # Choose maximum Q-value action
     action = np.argmax(prediction)
     action = np.int16(action).item()  # converting numpy int to native python int
     return action
-
 
 # This function converts obserwation from form:
 # {'board': [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 2, 1, 0, 0, 2, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 1, 1, 2], 'mark': 1}
@@ -51,5 +50,4 @@ def states_converter(observation, rows, columns, convolution=False):
     state = state.reshape((1, rows, columns))
     if convolution:
         state = np.expand_dims(state, axis=3)
-        # print('state shape=',state.shape)
     return state
