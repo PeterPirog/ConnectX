@@ -6,7 +6,8 @@ def agent(observation, configuration):
     columns=configuration['columns']
     inarow=configuration['inarow']
     #print(observation.board)
-    return choice([c for c in range(columns) if observation.board[c] == 0])
+    action=choice([c for c in range(columns) if observation.board[c] == 0])
+    return action
 
 class AgentNet(Model):
     def __init__(self,):

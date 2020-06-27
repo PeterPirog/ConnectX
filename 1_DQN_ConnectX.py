@@ -13,7 +13,7 @@ from kaggle_environments import evaluate, make, utils
 
 #This script version save all sars in the file
 
-EPISODES=1000
+EPISODES=200000
 
 class DQNAgent:
     def __init__(self,state_size,action_size):
@@ -157,8 +157,10 @@ if __name__=="__main__":
         if e%10==0:
             agent.save('connectX.obj')
             #agent.save('cartpole-dqn.h5')
-    sars=agent.memory
-    print(sars)
+            sars = agent.memory
+            print('Data saved to file')
+            pickle.dump(sars, open('ConnectX_N_episodes.obj', 'wb'))
 
-    pickle.dump(sars, open('ConnectX_1000_episodes.obj', 'wb') )
+
+
 

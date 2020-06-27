@@ -26,8 +26,8 @@ def mean_reward(rewards):
     return sum(r[0] for r in rewards) / float(len(rewards))
 
 # Run multiple episodes to estimate its performance.
-#print("My Agent vs Random Agent:", mean_reward(evaluate("connectx", [agent, agent], num_episodes=10)))
+print("My Agent vs Random Agent:", mean_reward(evaluate("connectx", [agent, agent], num_episodes=100)))
 #print("My Agent vs Negamax Agent:", mean_reward(evaluate("connectx", [agent, "negamax"], num_episodes=10)))
 
-print(evaluate("connectx", [agent, agent], num_episodes=10))
+print(evaluate("connectx", [agent, agent], num_episodes=100))
 
