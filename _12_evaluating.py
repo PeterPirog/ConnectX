@@ -1,6 +1,6 @@
 from kaggle_environments import make,evaluate
 from _11_submission import  act,agent
-#from _11conv_DQN_Nets import DQNAgent
+from _12_DQN import DQNAgent
 import os
 
 decision_fct=act
@@ -17,7 +17,7 @@ columns=configuration['columns']
 
 #Training process settings
 EPISODES=30
-#agent2=DQNAgent(rows=rows,columns=columns,action_size=columns)
+agent2=DQNAgent(rows=rows,columns=columns,action_size=columns)
 
 verbose=False
 
