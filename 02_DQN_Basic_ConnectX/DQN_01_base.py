@@ -16,6 +16,7 @@ class DeepNetwork(nn.Module):
         self.lr = lr
         # Define layers
         self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)
+        #self.flatt=nn
         self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
         self.fc3 = nn.Linear(self.fc2_dims, self.n_actions)
         self.optimizer = optim.Adam(self.parameters(), lr=self.lr)
@@ -44,15 +45,15 @@ class Agent():
         self.mem_cntr = 0
 
         self.iteration_memory_save = 10000  # save collected values  and save agent after number of iterations
-        self.filename_memory = 'memory.pkl'  # filename to store collected states
-        self.filename_agent_net = 'agent_net.pt'  # filename to save trained agent
+        self.filename_memory = 'Cx_memory.pkl'  # filename to store collected states
+        self.filename_agent_net = 'Cx_agent_net.pt'  # filename to save trained agent
 
         #self.Q_eval = self.load_agent_net()
         try:  # continue learning if possible
-            #self.Q_eval = self.load_agent_net()
+            self.Q_eval = self.load_agent_net()
             print('PyTorch net checkpoint loaded')
         except:
-            self.Q_eval = DeepNetwork(self.lr, n_actions=n_actions, input_dims=input_dims, fc1_dims=256, fc2_dims=256)
+            self.Q_eval = DeepNetwork(self.lr, n_actions=n_actions, input_dims=input_dims, fc1_dims=500, fc2_dims=256)
 
         self.state_memory = np.zeros((self.mem_size, *input_dims), dtype=np.float32)
         self.new_state_memory = np.zeros((self.mem_size, *input_dims), dtype=np.float32)
@@ -101,8 +102,7 @@ class Agent():
 
         action_batch = self.action_memory[batch]
 
-        q_eval = self.Q_eval.forward(state_batch)[
-            batch_index, action_batch]  # action batch beacuse we get only values for action taken
+        q_eval = self.Q_eval.forward(state_batch)[batch_index, action_batch]  # action batch beacuse we get only values for action taken
         q_next = self.Q_eval.forward(new_state_batch)
         q_next[terminal_batch] = 0.0
 
