@@ -121,7 +121,7 @@ if __name__ == '__main__':
         print('episode ', i, 'score %.2f' % score, 'average score %.2f' % avg_score,
               'epsilon %.2f' % agent.epsilon)
 
-        if i % 100 == 0:
+        if i % 20 == 0:
             T.save(agent, 'Cx_whole_agent.pt')
-
+            T.save(agent.Q_eval.state_dict(), 'Cx_agent_net_dict.pth')
         x = [i + 1 for i in range(n_games)]

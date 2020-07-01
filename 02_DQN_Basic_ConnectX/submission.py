@@ -1,30 +1,44 @@
 import numpy as np
 import torch as T
+import requests
 import os
 
-#MODEL_Q = 0  # global variable to checking if model is defined
-
-
+"""
 # original agent
 def act(observation, configuration):
     board = observation.board
     columns = 7  # configuration.columns
     return [c for c in range(columns) if board[c] == 0][0]
 
+def agent2(obs, config):
+    valid_moves = [col for col in range(config.columns) if obs.board[col] == 0]
+    return valid_moves[0]
+"""
 
 def agent(observation, configuration):
-    rows = 6  # configuration['rows']
-    columns = 7  # configuration['columns']
+    rows = configuration.rows #6  # configuration['rows']
+    columns = configuration.columns #7  # configuration['columns']
 
     device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
-   # global MODEL_Q
-    MODEL_Q=T.load('Cx_agent_net.pt',map_location=device)
+
+    if os.path.isfile('Cx_agent_net.pt')==False:
+        r = requests.get('https://raw.githubusercontent.com/PeterPirog/tf_agents_tests/master/Cx_agent_net.pt')
+        with open('Cx_agent_net.pt', 'wb') as f:
+            f.write(r.content)
+        while os.path.isfile('Cx_agent_net.pt')==False:
+            pass
+
+
+   # global model_Q
+    model_Q=T.load('Cx_agent_net.pt',map_location=device)
+    model_Q.eval()  #turn off droput, noise etc..
+
 
     Cx = ConX(rows=rows,columns=columns,vector_form=True, convolution_ready=False)
     state=Cx.obs2state(observation)
 
     state=T.tensor(state,dtype=T.float32,device=device)
-    prediction=MODEL_Q.forward(state)
+    prediction=model_Q.forward(state)
 
 
     # Choose maximum Q-value action

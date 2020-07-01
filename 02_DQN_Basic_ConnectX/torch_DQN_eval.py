@@ -1,11 +1,10 @@
 from kaggle_environments import make, evaluate
-from submission import agent, ConX
+from submission import agent_agent, ConX
 import gym
 import torch as T
 from DQN_01_base import Agent
 
 import numpy as np
-
 
 
 
@@ -16,6 +15,7 @@ if __name__ == '__main__':
 
     env = make("connectx", debug=True)
     env = env.train([None,'random'])#'random'
+
     """
     Cx = ConX(vector_form=True, convolution_ready=False)
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     """
     scores, eps_history = [], []
 
-    n_games = 50
+    n_games = 10
 
     for i in range(n_games):
         score = 0
@@ -32,7 +32,7 @@ if __name__ == '__main__':
         observation = env.reset()
 
         while not done:
-            action = agent(observation,configuration=None)
+            action = agent_agent(observation,configuration=None)
             observation_, reward, done, info = env.step(action)
             if reward is None: reward=0 # convert to 0 if draw
             score += reward
