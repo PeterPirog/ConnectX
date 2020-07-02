@@ -23,7 +23,7 @@ class ConX():
 
     def obs2state(self, raw_observation):
         self.raw_observation = raw_observation  # include vector and mark
-        self.obs_vect = np.array(self.raw_observation['board'],dtype=np.float32)
+        self.obs_vect = np.array(self.raw_observation['board'], dtype=np.float32)
         self.obs_board = None
         self.obs_conv = None
         self.mark = self.raw_observation['mark']
@@ -37,15 +37,16 @@ class ConX():
         self.obs_vect = self.obs_vect / 5
 
         if self.vector_form:  # if single vector state form
-            return self.obs_vect
-        else:  # if 2D array form
             self.obs_board = np.expand_dims(self.obs_vect, axis=0)
             self.obs_board = self.obs_board.reshape((1, self.rows, self.columns))
+            return self.obs_vect
+        else:  # if 2D array form
             if not self.convolution:  # check if need preparing  for convolution , channels should be  added
                 return self.obs_board
             else:
                 self.obs_conv = np.expand_dims(self.obs_board, axis=3)
                 return self.obs_conv
+
     def conv_obs_rwd_done_inf(self,observation, reward, done, info ):
         observation=self.obs2state(observation)
 
@@ -56,16 +57,18 @@ class ConX():
 
         return observation, reward, done, info
 
-    def get_available_action(self,state,action):
+    def get_available_action(self, state, action):
+        state = self.obs_board
+
         # reducink dimmensions
-        vector=np.ndarray.flatten(state)
-        short_vector=vector[:self.n_actions]
-        #print('short vector=',short_vector)
-        idx =np.where(short_vector ==0)
+        vector = np.ndarray.flatten(state)
+        short_vector = vector[:self.n_actions]
+        # print('short vector=',short_vector)
+        idx = np.where(short_vector == 0)
         if action in short_vector:
             return action
         else:
-            action = int(np.random.choice(idx[0]))
+            action = np.int16(np.random.choice(idx[0])).item()
             return action
 
 #############################################################################################################
@@ -82,7 +85,7 @@ if __name__ == '__main__':
                   eps_end=0.01, input_dims=Cx.input_size, lr=0.003)
     scores, eps_history = [], []
 
-    n_games = 200000
+    n_games = 2000000
 
     for i in range(n_games):
         score = 0
@@ -110,7 +113,7 @@ if __name__ == '__main__':
               'epsilon %.2f' % agent.epsilon)
 
         #SAVING  Nets
-        if i % 20 == 0:
+        if i % 1000 == 0:
             T.save(agent, 'Cx_whole_agent.pt')
             T.save(agent.Q_eval.state_dict(), 'Cx_agent_net_dict.pth') #Thic model is for GPU
 

@@ -66,8 +66,6 @@ def agent(observation, configuration):
                 self.obs_board = self.obs_board.reshape((1, self.rows, self.columns))
                 return self.obs_vect
             else:  # if 2D array form
-                #self.obs_board = np.expand_dims(self.obs_vect, axis=0)
-                #self.obs_board = self.obs_board.reshape((1, self.rows, self.columns))
                 if not self.convolution:  # check if need preparing  for convolution , channels should be  added
                     return self.obs_board
                 else:
