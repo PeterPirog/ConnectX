@@ -1,5 +1,5 @@
 from kaggle_environments import make, evaluate
-from submission import agent_agent, ConX
+from submission_class_in import agent
 import gym
 import torch as T
 from DQN_01_base import Agent
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     """
     scores, eps_history = [], []
 
-    n_games = 10
+    n_games = 100
 
     for i in range(n_games):
         score = 0
@@ -32,7 +32,7 @@ if __name__ == '__main__':
         observation = env.reset()
 
         while not done:
-            action = agent_agent(observation,configuration=None)
+            action = agent(observation,configuration=None)
             observation_, reward, done, info = env.step(action)
             if reward is None: reward=0 # convert to 0 if draw
             score += reward

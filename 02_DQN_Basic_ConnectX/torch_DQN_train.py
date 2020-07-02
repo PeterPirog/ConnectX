@@ -2,6 +2,7 @@ from kaggle_environments import make, evaluate
 import gym
 import torch as T
 from DQN_01_base import Agent
+from submission_strNet import DeepNetwork #this network is for cpu
 
 import numpy as np
 
@@ -61,24 +62,11 @@ class ConX():
         short_vector=vector[:self.n_actions]
         #print('short vector=',short_vector)
         idx =np.where(short_vector ==0)
-
-        #print('short vector=', short_vector,'idx=',idx)
-        """
-        if np.isin(action,idx)==False:
-            action = np.random.choice(idx)
-
- 
-        # find columns without zero values
-        occurencies = np.count_nonzero(single_board, axis=0)
-                idx = np.argwhere(occurencies < self.rows).squeeze()
-
-        if action in idx:
-            pass
+        if action in short_vector:
+            return action
         else:
-            action = np.random.choice(idx)
-            action = np.int16(action).item()
-            """
-        return action
+            action = int(np.random.choice(idx[0]))
+            return action
 
 #############################################################################################################
 
@@ -94,7 +82,7 @@ if __name__ == '__main__':
                   eps_end=0.01, input_dims=Cx.input_size, lr=0.003)
     scores, eps_history = [], []
 
-    n_games = 100000
+    n_games = 200000
 
     for i in range(n_games):
         score = 0
@@ -121,7 +109,13 @@ if __name__ == '__main__':
         print('episode ', i, 'score %.2f' % score, 'average score %.2f' % avg_score,
               'epsilon %.2f' % agent.epsilon)
 
+        #SAVING  Nets
         if i % 20 == 0:
             T.save(agent, 'Cx_whole_agent.pt')
-            T.save(agent.Q_eval.state_dict(), 'Cx_agent_net_dict.pth')
-        x = [i + 1 for i in range(n_games)]
+            T.save(agent.Q_eval.state_dict(), 'Cx_agent_net_dict.pth') #Thic model is for GPU
+
+            cpu_model = DeepNetwork(lr=0.003, n_actions=7, input_dims=[42], fc1_dims=500, fc2_dims=256) #This model is for CPU
+            cpu_model.load_state_dict(T.load('Cx_agent_net_dict.pth', map_location=T.device('cpu')))
+            #print('\n', cpu_model.state_dict())
+            T.save(cpu_model.state_dict(), 'Cx_agent_net_dict_CPU.pth')
+
